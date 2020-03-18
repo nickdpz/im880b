@@ -9,6 +9,7 @@
 //  Include Files
 //------------------------------------------------------------------------------
 
+#include "WiMOD_LoRaWAN_API.h"
 #include "pylatex.h"
 #include <string.h>
 
@@ -41,43 +42,41 @@ void registerDelayFunction(delayHandlerFunction delfun,volatile bool *flag) {
     PY.tmrrun=flag;
 }
 
-bool AppendMeasure (uint8_t channel, pymeasure variable,char *medida) {
+bool AppendMeasure (char variable,char *medida) {
     if (medida) {
         switch (variable) {
-            case pCO2:
-            case pTVOC:
-            case pPM025:
-            case pPM100:
-            case pGAS:
-            case pILUM1:
-            case pILUM2:
-            case pPRECIPITATION:
-            case pWINDSPEED:
+            case PY_CO2:
+            case PY_TVOC:
+            case PY_PM025:
+            case PY_PM100:
+            case PY_GAS:
+            case PY_ILUM1:
+            case PY_ILUM2:
+            case PY_PRECIPITATION:
+            case PY_WINDSPEED:
+            case PY_DISTANCE:
                 //FORMATO A
-                if (PY.cnt < (LARGO - 4)) {
-                    PY.carga[PY.cnt++]=channel;    //Canal
-                    PY.carga[PY.cnt++]=variable;   //Magnitud
+                if (PY.cnt < (LARGO - 3)) {
+                    PY.carga[PY.cnt++]=variable;   //Identificador
                     PY.carga[PY.cnt++]=medida[0];  //MSB
                     PY.carga[PY.cnt++]=medida[1];  //LSB
                     return true;
                 }
                 break;
 
-            case pCOMP1:
+            case PY_PRESS1:
                 //FORMATO E
-                if (PY.cnt < (LARGO - 32)) {
-                    PY.carga[PY.cnt++]=channel;    //Canal
-                    PY.carga[PY.cnt++]=variable;   //Magnitud
+                if (PY.cnt < (LARGO - 31)) {
+                    PY.carga[PY.cnt++]=variable;   //Identificador
                     memcpy(&PY.carga[PY.cnt], medida, 30 );
                     PY.cnt+=30;
                 }
                 break;
 
-            case pGPS:
+            case PY_GPS:
                 //FORMATO F
-                if (PY.cnt < (LARGO - 11)) {
-                    PY.carga[PY.cnt++]=channel;    //Canal
-                    PY.carga[PY.cnt++]=variable;   //Magnitud
+                if (PY.cnt < (LARGO - 10)) {
+                    PY.carga[PY.cnt++]=variable;   //Identificador
                     memcpy(&PY.carga[PY.cnt], medida, 9 );
                     PY.cnt+=9;
                 }

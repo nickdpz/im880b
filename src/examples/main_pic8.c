@@ -5,14 +5,22 @@
  * La mayoria de archivos vienen del comprimido
  * WiMOD_LoRaWAN_ExampleCode_HCI_C_V0_1.zip
  * y han sido ligeramente modificados para soportar tipos estandar.
+ * Para Debug
+ * Rx viene de RB7
+ * Tx va hacia RC7
+ * El Ultra sonido funciona a 5 V
+ *  Pin Trigger HC-SR04
+ *  Pin Echo HC-SR04
+ * Inicia Medicion del ACD en AN7, osea pin RC3
+ * 
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-#define SMACH       //Maquina de estados (principal)
-//#define TEST_1      //Verificacion UART/Reloj
-//#define TEST_2      //Verificacion comunicacion PIC-WiMOD
-//#define TEST_4      //Medicion ADC y envio por UART
-
+//#define SMACH         //Maquina de estados (principal)
+//#define TEST_1        //Verificacion UART/Reloj
+//#define TEST_2        //Verificacion comunicacion PIC-WiMOD
+#define TEST_3        //Medicion Distancia y ACD para envio por UART
+//#define TEST_4        //Tarjeta RFID
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
@@ -22,23 +30,24 @@
 #include "SerialDevice.h"
 #include "pylatex.h"
 #include "nucleoPIC.h"
+#include "spi.h"
+
 
 #if defined TEST_2
 void ProcesaHCI();
-volatile unsigned bool pendingmsg;
+volatile bool pendingmsg;
 #endif
 
 #if defined SMACH || defined TEST_3
-#include "i2c.h"
-#include "T67xx.h"
-#include "hdc1010.h"
 #include "iaq.h"
-#include "bh1750fvi.h"
-#include "bmp280.h"
+#include "hcsr04.h"
+#include "ADC.h"
+#include "iaq.h"
 #include "nmeaCayenne.h"
 #endif
+
 #if defined SMACH || defined TEST_4
-#include "ADC.h"
+#include "RC522.h"
 #endif
 
 //------------------------------------------------------------------------------
@@ -56,13 +65,9 @@ void blink (unsigned char cant,unsigned char high,unsigned char low); //Parpadeo
 
 //Utilidades Serial
 extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
-extern void enviaIMST(char *arreglo,unsigned char largo);
-extern void enviaGPS(char *arreglo,unsigned char largo);
-extern void enviaDebug(char *arreglo,unsigned char largo);
-
-//------------------------------------------------------------------------------
-//  Section Code
-//------------------------------------------------------------------------------
+extern void enviaIMST(uint8_t *arreglo,uint8_t largo);
+extern void enviaGPS(uint8_t *arreglo,uint8_t largo);
+extern void enviaDebug(uint8_t *arreglo,uint8_t largo);
 
 /**
  * Programa Principal
@@ -70,33 +75,31 @@ extern void enviaDebug(char *arreglo,unsigned char largo);
 void main(void)
 {
     setup();
-    cambiaSerial (MODEM_LW);
-    I2CPersOn();    //Enciende los perifericos I2C (RC7 - VCC_SENS)
-
-    #ifndef TEST_4
     enableInterrupts();
+    cambiaSerial (MODEM_LW);
+    
+    #if defined TEST_3 || defined TEST_1
+    LED = true;
+    char phrase[20];
+    unsigned char phlen;
+    phlen = sprintf(&phrase,"Iniciamos:\r\n");
+    enviaDebug(phrase,phlen);
+    #endif
+    
+    #if defined HCSR04_H
+    int distance;//Variable donde se guarda la distancia
+    HCSinit();
+    #endif
+    
+    #if defined TEST_4
+    unsigned char phrase[20];
+    unsigned char i;
+    sprintf(phrase,"Iniciamos\r\n");
+    enviaDebug(phrase,0);
     #endif
 
-    #ifdef HDC1010_H
-    unsigned short temp,hum;
-    HDCinit (&temp,&hum,msdelay);
-    #endif
-
-    #ifdef BH1750FVI_H
-    unsigned short light;
-    DVI=false;
-    __delay_us(5);
-    DVI=true;
-    BHinit(false);
-    BHwrite(BH1750_RESET);
-    BHwrite(BH1750_PWR_ON);
-    BHwrite(BH1750_CONTINOUS | BH1750_LR);
-    #endif
-
-    #ifdef BMP280_H
-    char mem[30];
-    BMP280init(false);
-    BMP280writeCtlMeas(BMPnormalMode | BMPostX1 | BMPospX1);
+    #if defined RC522_H
+    PCD_Init();
     #endif
 
     #ifdef NMEACAYENNE_H
@@ -104,16 +107,17 @@ void main(void)
     initNC(&NMEA);
     #endif
 
-    #ifdef PYLATEX_H
+    #ifdef SMACH
     LWstat LWstatus;
     initLW((serialTransmitHandler)enviaIMST,&LWstatus);
     #endif
 
     while (true) {
         //State Machine Description
-        #ifdef SMACH
+        #if defined SMACH
+        LWstat LWstatus;
 
-        LED=true;
+        initLW((serialTransmitHandler)enviaIMST,&LWstatus);
         do {
             flag_t catch;
             WiMOD_LoRaWAN_nextRequest(&catch);
@@ -123,51 +127,16 @@ void main(void)
         LED=false;
 
         registerDelayFunction(StartTimerDelayMs,&delrun);
-
+        
         const uint8_t CNT_BEFORE_REAUTH=60;
+        
         for (char cnt=0;cnt<CNT_BEFORE_REAUTH;cnt++) {
-            LED=true;
-
-            #ifdef T6700_H //T6713 reading though I2C
-            unsigned short rsp;
-            if (T67xx_CO2(&rsp))
-                AppendMeasure(1,pCO2,short2charp(rsp));
-            #endif
-            //AppendMeasure(PY_GAS,short2charp(valorPropano()));
-            #ifdef BMP280_H //Pruebas con BMP280
-            if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24]))
-                AppendMeasure(1,pCOMP1,mem);
-            #endif
-            #ifdef BH1750FVI_H
-            if (BHread(&light))
-                AppendMeasure(1,pILUM1,short2charp(light));
-            #endif
-            #ifdef NMEACAYENNE_H
-            if (NCupdated()) {
-                uint8_t buff[9];
-                buff[0] = (NMEA.latitude >> 16) & 0xFF;
-                buff[1] = (NMEA.latitude >> 8) & 0xFF;
-                buff[2] = NMEA.latitude & 0xFF;
-                buff[3] = (NMEA.longitude >> 16) & 0xFF;
-                buff[4] = (NMEA.longitude >> 8) & 0xFF;
-                buff[5] = NMEA.longitude & 0xFF;
-                buff[6] = (NMEA.height >> 16) & 0xFF;
-                buff[7] = (NMEA.height >> 8) & 0xFF;
-                buff[8] = NMEA.height & 0xFF;
-                AppendMeasure(1,pGPS,buff);
-                ms100(1);
-                LED=false;
-                ms100(1);
-                LED=true;
+            if (HCSread(&distance)){//le indica la direccion de la variable tipo entero distancia
+                AppendMeasure(PY_DISTANCE,short2charp(distance));
             }
-            #endif
-
+            AppendMeasure(PY_GAS,short2charp(ADC_Get_Data()));   
             SendMeasures(PY_UNCONFIRMED);
-            ms100(1);
-            LED=false;
-            ms100(24); //Waits 2.5 seconds (LoRaWAN Rx Windows) prior changing to GPS
-            cambiaSerial(GPS);
-            ms100(75);  //Approx. each 10 sec ((75+24+1)x100ms)
+            ms100(50);  //Approx. each 5 sec ((49+1)x100ms)
             char buff[20],len;
             len=sprintf(buff,"Intento %2i/%2i\n\r",cnt+1,CNT_BEFORE_REAUTH);
             enviaDebug(buff,len);
@@ -175,27 +144,64 @@ void main(void)
         #endif
 
         //Prueba 1: Verificacion UART y Reloj ~ 1 Hz
-        #ifdef TEST_1
+        #if defined TEST_1
         LED = true;
-        enviaDebug((char *)"estoy vivo\r\n",0);
-        ms100(5);
+        ms100(10);
         LED = false;
-        ms100(5);
+        ms100(10);
+        phlen = sprintf(&phrase,"Estoy Vivo\r\n");
+        enviaDebug(&phrase,phlen);
         #endif
 
         //Prueba 2: Envio de Ping hacia iM880B (puede verse con WiMOD LoRaWAN DevTool)
-        #ifdef TEST_2
+        #if defined TEST_2
         WiMOD_LoRaWAN_SendPing();
         ms100(10);
         #endif
 
         //Prueba 4: Medicion ADC y envio por UART
-        #ifdef TEST_4
-        unsigned char phrase[15],phlen;
-        phlen=sprintf(phrase,"Propano:%u\r\n",valorPropano());
-        SerialDevice_SendData(phrase,phlen);
+        #if defined TEST_3
+        LED = true;
         ms100(10);
+        LED = false;
+        ms100(10);
+        phlen = sprintf(&phrase,"ADC DATO: %u\r\n",ADC_Get_Data());
+        enviaDebug(&phrase,phlen);
+        if (HCSread(&distance)) {//le indica la direccion de la variable tipo entero distancia
+            phlen = sprintf(phrase,"Distancia:%i\r\n",distance);// construye la cadena y la guarda phrase y el tamaño en phlen
+        }else{
+            phlen = sprintf(phrase,"Distancia: No se envio nada\r\n"); 
+        }  
+        enviaDebug(&phrase,phlen);
+        ms100(1);
         #endif
+
+        //Prueba de tarjeta RFID
+        #if defined TEST_4    
+        
+        if (PICC_IsNewCardPresent()){
+            sprintf(phrase,"Te encontramos alelulla\n");
+            enviaDebug(phrase,0);
+             if (PICC_ReadCardSerial() )
+            {
+                  // Enviamos serialemente su UID
+                  sprintf(phrase,"Card UID:");
+                  enviaDebug(phrase,0);
+                  for (i = 0; i < uid.size; i++) {
+                          sprintf(phrase,uid.uidByte[i] < 0x10 ? " " : " ");
+                          enviaDebug(phrase,0);
+                          sprintf(phrase,"%02X",uid.uidByte[i]);   
+                          enviaDebug(phrase,0);
+                  } 
+                  // Terminamos la lectura de la tarjeta  actual
+                  PICC_HaltA(); 
+             }
+        }else{
+            sprintf(phrase,"\n No Detectada\r\n"); 
+            enviaDebug(phrase,0);  }
+        ms100(10);//1 s
+        #endif
+        
     }
 }
 
@@ -206,7 +212,8 @@ char minibuff,HCIbuff[20],rxcnt;
 /**
  * Rutina de atencion de interrupciones
  */
-void __interrupt ISR (void) {
+void __interrupt() ISR (void) 
+{
     if (RCIE && RCIF) {
         //Error reading
         rx_err=RCSTA;
@@ -215,11 +222,11 @@ void __interrupt ISR (void) {
             case MODEM_LW:
                 pylatexRx(RCREG);
                 break;
-            #ifdef NMEACAYENNE_H
             case GPS:
-                NCinputSerial(RCREG);
+                #ifdef NMEACAYENNE_H
+                    NCinputSerial(RCREG);
+                #endif
                 break;
-            #endif
             case HPM:
                 libre = false;
             default:
@@ -254,7 +261,8 @@ void __interrupt ISR (void) {
  * @param high: Tiempo en alto (centenas de ms)
  * @param low:  Tiempo en bajo (centenas de ms)
  */
-void blink (unsigned char cant,unsigned char high,unsigned char low) {
+void blink (unsigned char cant,unsigned char high,unsigned char low) 
+{
     while (cant--) {
         LED=true;
         ms100(high);
@@ -267,7 +275,8 @@ void blink (unsigned char cant,unsigned char high,unsigned char low) {
  * Demora activa
  * @param cantidad: Duracion en milisegundos
  */
-void msdelay (unsigned char cantidad) {
+void msdelay (unsigned char cantidad) 
+{
     StartTimerDelayMs(cantidad);
     while (TMR1ON);
 }
@@ -292,7 +301,8 @@ void StartTimerDelayMs(unsigned char cant)
  * Generates a delay of q*100 ms
  * @param q: multiplier.
  */
-void ms100 (unsigned char q) {
+void ms100 (unsigned char q) 
+{
     while (q--)
         __delay_ms(100);    //XC8 compiler
 }

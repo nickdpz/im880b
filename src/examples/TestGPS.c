@@ -17,28 +17,19 @@
 #include "pylatex.h"
 extern serial_t modoSerial;     //Elemento Serial que se esta controlando
 extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
-extern void enviaDebug(char *arreglo,unsigned char largo);
-extern void enviaGPS(char *arreglo,unsigned char largo);
+void enviaDebug(char *arreglo,unsigned char largo);
 #endif
 
 void main (void) {
     setup();
 
     #ifdef SOFTWARE_REDIRECTION
-    /*
-    LATA = 0x10;
-    TRISA = 0xEF;   //Salida solo en A4
+    LATC = 0xC0;
+    PORTC = 0xC0;
+    TRISC = 0x7F;   //Salida solo C7
     while(true){
-        LATA4 = RA5;  //Eco local en DEBUG1
+        RC7=RB5;
     }
-    // */
-    //*
-    LATA = 0x10;
-    TRISA = 0xEF;   //Salida solo en A4
-    while(true){
-        LATA4 = RB5;  //Eco local en DEBUG1
-    }
-    // */
     #else
     cambiaSerial(GPS);
     enableInterrupts();
@@ -47,10 +38,8 @@ void main (void) {
     initNC(&NMEA);
 
     while (1) {
-        /*
-        enviaDebug("estoy vivo\r\n",0);
-        __delay_ms(1000);
-        // */
+        //enviaDebug("estoy vivo\r\n",0);
+        //__delay_ms(1000);
         //*
         //processPending();
         if (NCupdated()) {
@@ -60,6 +49,7 @@ void main (void) {
             enviaDebug(buff,0);
             cambiaSerial(GPS);
         }
+
         // */
     }
     #endif

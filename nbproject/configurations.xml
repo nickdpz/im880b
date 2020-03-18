@@ -19,6 +19,8 @@
         <itemPath>src/bmp280.h</itemPath>
         <itemPath>src/nmea.h</itemPath>
         <itemPath>src/nmeaCayenne.h</itemPath>
+        <itemPath>src/hcsr04.h</itemPath>
+        <itemPath>src/RC522.h</itemPath>
       </logicalFolder>
       <itemPath>src/CRC16.h</itemPath>
       <itemPath>src/SerialDevice.h</itemPath>
@@ -28,6 +30,8 @@
       <itemPath>src/ADC.h</itemPath>
       <itemPath>src/I2Cgeneric.h</itemPath>
       <itemPath>src/nucleoPIC.h</itemPath>
+      <itemPath>src/tmr1.h</itemPath>
+      <itemPath>src/spi.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -57,6 +61,8 @@
         <itemPath>src/bh1750fvi.c</itemPath>
         <itemPath>src/bmp280.c</itemPath>
         <itemPath>src/nmeaCayenne.c</itemPath>
+        <itemPath>src/hcsr04.c</itemPath>
+        <itemPath>src/RC552.c</itemPath>
       </logicalFolder>
       <itemPath>src/CRC16.c</itemPath>
       <itemPath>src/i2c.c</itemPath>
@@ -66,6 +72,8 @@
       <itemPath>src/I2Cgeneric.c</itemPath>
       <itemPath>src/serial16F1769.c</itemPath>
       <itemPath>src/nucleoPIC.c</itemPath>
+      <itemPath>src/tmr1.c</itemPath>
+      <itemPath>src/spi.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -88,11 +96,11 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>2.00</languageToolchainVersion>
-        <platform>2</platform>
+        <languageToolchainVersion>2.10</languageToolchainVersion>
+        <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC12-16F1xxx_DFP" vendor="Microchip" version="1.0.10"/>
+        <pack name="PIC12-16F1xxx_DFP" vendor="Microchip" version="1.2.63"/>
       </packs>
       <compileType>
         <linkerTool>
@@ -119,11 +127,17 @@
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <HI-TECH-COMP>
+        <property key="additional-warnings" value="true"/>
         <property key="asmlist" value="true"/>
+        <property key="call-prologues" value="false"/>
+        <property key="default-bitfield-type" value="true"/>
+        <property key="default-char-type" value="true"/>
         <property key="define-macros" value=""/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories" value="src"/>
         <property key="favor-optimization-for" value="-speed,+space"/>
+        <property key="garbage-collect-data" value="true"/>
+        <property key="garbage-collect-functions" value="true"/>
         <property key="identifier-length" value="255"/>
         <property key="local-generation" value="false"/>
         <property key="operation-mode" value="free"/>
@@ -136,7 +150,9 @@
         <property key="optimization-level" value="9"/>
         <property key="optimization-speed" value="false"/>
         <property key="optimization-stable-enable" value="false"/>
+        <property key="pack-struct" value="true"/>
         <property key="preprocess-assembler" value="true"/>
+        <property key="short-enums" value="true"/>
         <property key="undefine-macros" value=""/>
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
@@ -160,10 +176,10 @@
         <property key="code-model-rom" value=""/>
         <property key="create-html-files" value="false"/>
         <property key="data-model-ram" value=""/>
-        <property key="data-model-size-of-double" value="24"/>
-        <property key="data-model-size-of-double-gcc" value="short-double"/>
-        <property key="data-model-size-of-float" value="24"/>
-        <property key="data-model-size-of-float-gcc" value="short-float"/>
+        <property key="data-model-size-of-double" value="32"/>
+        <property key="data-model-size-of-double-gcc" value="no-short-double"/>
+        <property key="data-model-size-of-float" value="32"/>
+        <property key="data-model-size-of-float-gcc" value="no-short-float"/>
         <property key="display-class-usage" value="false"/>
         <property key="display-hex-usage" value="false"/>
         <property key="display-overall-usage" value="true"/>
@@ -188,6 +204,7 @@
         <property key="opt-xc8-linker-link_startup" value="false"/>
         <property key="opt-xc8-linker-serial" value=""/>
         <property key="program-the-device-with-default-config-words" value="true"/>
+        <property key="remove-unused-sections" value="true"/>
       </HI-TECH-LINK>
       <PICkit3PlatformTool>
         <property key="AutoSelectMemRanges" value="auto"/>
@@ -598,12 +615,16 @@
                   value=""/>
         <property key="warningmessagebreakoptions.warningmessages" value="holdstate"/>
       </Simulator>
+      <XC8-CO>
+        <property key="coverage-enable" value=""/>
+      </XC8-CO>
       <XC8-config-global>
         <property key="advanced-elf" value="true"/>
         <property key="gcc-opt-driver-new" value="true"/>
-        <property key="gcc-opt-std" value="-std=c90"/>
-        <property key="gcc-output-file-format" value="coff"/>
+        <property key="gcc-opt-std" value="-std=c99"/>
+        <property key="gcc-output-file-format" value="dwarf-3"/>
         <property key="omit-pack-options" value="false"/>
+        <property key="omit-pack-options-new" value="1"/>
         <property key="output-file-format" value="+mcof,-elf"/>
         <property key="stack-size-high" value="auto"/>
         <property key="stack-size-low" value="auto"/>
@@ -616,6 +637,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -624,6 +647,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -632,6 +657,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -640,6 +667,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -648,6 +677,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -656,6 +687,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -664,6 +697,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -672,6 +707,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -680,6 +717,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -688,6 +727,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -696,6 +737,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -704,6 +747,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -712,6 +757,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -724,11 +771,11 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>2.00</languageToolchainVersion>
-        <platform>2</platform>
+        <languageToolchainVersion>2.10</languageToolchainVersion>
+        <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC12-16F1xxx_DFP" vendor="Microchip" version="1.0.10"/>
+        <pack name="PIC12-16F1xxx_DFP" vendor="Microchip" version="1.2.63"/>
       </packs>
       <compileType>
         <linkerTool>
@@ -755,11 +802,17 @@
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <HI-TECH-COMP>
+        <property key="additional-warnings" value="true"/>
         <property key="asmlist" value="true"/>
+        <property key="call-prologues" value="false"/>
+        <property key="default-bitfield-type" value="true"/>
+        <property key="default-char-type" value="true"/>
         <property key="define-macros" value=""/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories" value="src"/>
         <property key="favor-optimization-for" value="-speed,+space"/>
+        <property key="garbage-collect-data" value="true"/>
+        <property key="garbage-collect-functions" value="true"/>
         <property key="identifier-length" value="255"/>
         <property key="local-generation" value="false"/>
         <property key="operation-mode" value="free"/>
@@ -772,7 +825,9 @@
         <property key="optimization-level" value="9"/>
         <property key="optimization-speed" value="false"/>
         <property key="optimization-stable-enable" value="false"/>
+        <property key="pack-struct" value="true"/>
         <property key="preprocess-assembler" value="true"/>
+        <property key="short-enums" value="true"/>
         <property key="undefine-macros" value=""/>
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
@@ -796,10 +851,10 @@
         <property key="code-model-rom" value=""/>
         <property key="create-html-files" value="false"/>
         <property key="data-model-ram" value=""/>
-        <property key="data-model-size-of-double" value="24"/>
-        <property key="data-model-size-of-double-gcc" value="short-double"/>
-        <property key="data-model-size-of-float" value="24"/>
-        <property key="data-model-size-of-float-gcc" value="short-float"/>
+        <property key="data-model-size-of-double" value="32"/>
+        <property key="data-model-size-of-double-gcc" value="no-short-double"/>
+        <property key="data-model-size-of-float" value="32"/>
+        <property key="data-model-size-of-float-gcc" value="no-short-float"/>
         <property key="display-class-usage" value="false"/>
         <property key="display-hex-usage" value="false"/>
         <property key="display-overall-usage" value="true"/>
@@ -824,6 +879,7 @@
         <property key="opt-xc8-linker-link_startup" value="false"/>
         <property key="opt-xc8-linker-serial" value=""/>
         <property key="program-the-device-with-default-config-words" value="true"/>
+        <property key="remove-unused-sections" value="true"/>
       </HI-TECH-LINK>
       <PICkit3PlatformTool>
         <property key="AutoSelectMemRanges" value="auto"/>
@@ -833,6 +889,7 @@
                   value="Press to browse for a specific firmware version"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
@@ -847,7 +904,7 @@
                   value="${memories.instruction.ram.ranges}"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-7fff"/>
-        <property key="poweroptions.powerenable" value="false"/>
+        <property key="poweroptions.powerenable" value="true"/>
         <property key="programmertogo.imagename" value=""/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
@@ -1234,12 +1291,16 @@
                   value=""/>
         <property key="warningmessagebreakoptions.warningmessages" value="holdstate"/>
       </Simulator>
+      <XC8-CO>
+        <property key="coverage-enable" value=""/>
+      </XC8-CO>
       <XC8-config-global>
         <property key="advanced-elf" value="true"/>
         <property key="gcc-opt-driver-new" value="true"/>
-        <property key="gcc-opt-std" value="-std=c90"/>
+        <property key="gcc-opt-std" value="-std=c99"/>
         <property key="gcc-output-file-format" value="coff"/>
         <property key="omit-pack-options" value="false"/>
+        <property key="omit-pack-options-new" value="1"/>
         <property key="output-file-format" value="+mcof,-elf"/>
         <property key="stack-size-high" value="auto"/>
         <property key="stack-size-low" value="auto"/>
@@ -1252,6 +1313,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1260,6 +1323,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1268,6 +1333,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1276,6 +1343,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1284,6 +1353,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1292,6 +1363,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1300,6 +1373,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1312,11 +1387,11 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>2.00</languageToolchainVersion>
-        <platform>2</platform>
+        <languageToolchainVersion>2.10</languageToolchainVersion>
+        <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC12-16F1xxx_DFP" vendor="Microchip" version="1.0.10"/>
+        <pack name="PIC12-16F1xxx_DFP" vendor="Microchip" version="1.2.63"/>
       </packs>
       <compileType>
         <linkerTool>
@@ -1343,11 +1418,17 @@
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <HI-TECH-COMP>
+        <property key="additional-warnings" value="true"/>
         <property key="asmlist" value="true"/>
+        <property key="call-prologues" value="false"/>
+        <property key="default-bitfield-type" value="true"/>
+        <property key="default-char-type" value="true"/>
         <property key="define-macros" value=""/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories" value="src"/>
         <property key="favor-optimization-for" value="-speed,+space"/>
+        <property key="garbage-collect-data" value="true"/>
+        <property key="garbage-collect-functions" value="true"/>
         <property key="identifier-length" value="255"/>
         <property key="local-generation" value="false"/>
         <property key="operation-mode" value="free"/>
@@ -1360,7 +1441,9 @@
         <property key="optimization-level" value="9"/>
         <property key="optimization-speed" value="false"/>
         <property key="optimization-stable-enable" value="false"/>
+        <property key="pack-struct" value="true"/>
         <property key="preprocess-assembler" value="true"/>
+        <property key="short-enums" value="true"/>
         <property key="undefine-macros" value=""/>
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
@@ -1412,6 +1495,7 @@
         <property key="opt-xc8-linker-link_startup" value="false"/>
         <property key="opt-xc8-linker-serial" value=""/>
         <property key="program-the-device-with-default-config-words" value="true"/>
+        <property key="remove-unused-sections" value="true"/>
       </HI-TECH-LINK>
       <PICkit3PlatformTool>
         <property key="AutoSelectMemRanges" value="auto"/>
@@ -1822,12 +1906,16 @@
                   value=""/>
         <property key="warningmessagebreakoptions.warningmessages" value="holdstate"/>
       </Simulator>
+      <XC8-CO>
+        <property key="coverage-enable" value=""/>
+      </XC8-CO>
       <XC8-config-global>
         <property key="advanced-elf" value="true"/>
         <property key="gcc-opt-driver-new" value="true"/>
-        <property key="gcc-opt-std" value="-std=c90"/>
-        <property key="gcc-output-file-format" value="coff"/>
+        <property key="gcc-opt-std" value="-std=c99"/>
+        <property key="gcc-output-file-format" value="dwarf-3"/>
         <property key="omit-pack-options" value="false"/>
+        <property key="omit-pack-options-new" value="1"/>
         <property key="output-file-format" value="+mcof,-elf"/>
         <property key="stack-size-high" value="auto"/>
         <property key="stack-size-low" value="auto"/>
@@ -1840,6 +1928,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1848,6 +1938,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1856,6 +1948,18 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
+        <XC8-config-global>
+        </XC8-config-global>
+      </item>
+      <item path="src/RC552.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1864,6 +1968,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1872,6 +1978,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1880,6 +1988,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1888,6 +1998,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1896,6 +2008,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1904,6 +2018,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1912,6 +2028,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1920,6 +2038,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1928,6 +2048,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1936,6 +2058,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1944,6 +2068,18 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
+        <XC8-config-global>
+        </XC8-config-global>
+      </item>
+      <item path="src/hcsr04.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1952,6 +2088,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1960,6 +2098,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1968,6 +2108,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1976,6 +2118,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1984,6 +2128,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -1992,6 +2138,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>
@@ -2000,6 +2148,8 @@
         </HI-TECH-COMP>
         <HI-TECH-LINK>
         </HI-TECH-LINK>
+        <XC8-CO>
+        </XC8-CO>
         <XC8-config-global>
         </XC8-config-global>
       </item>

@@ -33,7 +33,7 @@ bool
 SerialDevice_Open(const char   *comPort,
                   baudrate_t    baudRate,
                   int           dataBits,
-                  UINT8         parity)
+                  uint8_t         parity)
 {
     //UART, Ajustes comunes a Rx y Tx. Inicializado de acuerdo a datasheet 18F2550
     //Se prueba con 8(interno) y 7.3728(externo) MHz
@@ -80,8 +80,8 @@ SerialDevice_Close()
 }
 
 // send data
-int
-SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
+int 
+SerialDevice_SendData(uint8_t *txBuffer, uint8_t txLength)
 {
     unsigned char aux=0;
     if (!txLength)
@@ -96,7 +96,7 @@ SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
 
 // send single byte
 int
-SerialDevice_SendByte(UINT8 txByte)
+SerialDevice_SendByte(uint8_t txByte)
 {
     if (SerialSentIsOpen()) {
         while (!TRMT);  //Wait for a pending transmision, due to TSR busy
@@ -129,7 +129,7 @@ void cambiaSerial (serial_t serial){
             break;
 
         case DEBUG1:
-            RA4PPS=0;
+            RC7PPS=0;
             break;
 
         default:
@@ -153,8 +153,8 @@ void cambiaSerial (serial_t serial){
 
         case DEBUG1:
             //Entradas y salidas UART
-            RXPPS=0x05;     //Rx viene de RA5
-            RA4PPS=0x16;    //Tx va hacia RA4
+            RXPPS=0x0F;     //Rx viene de RB7
+            RC7PPS=0x16;    //Tx va hacia RC7
             nuevaTasa = B9600;
             break;
 
@@ -172,17 +172,17 @@ void compruebaModo (serial_t modo) {
         cambiaSerial(modo);
 }
 
-void enviaIMST(char *arreglo,unsigned char largo) {
+void enviaIMST(uint8_t *arreglo,uint8_t largo) {
     compruebaModo(MODEM_LW);
     SerialDevice_SendData(arreglo,largo);
 }
 
-void enviaGPS(char *arreglo,unsigned char largo) {
+void enviaGPS(uint8_t *arreglo,uint8_t largo) {
     compruebaModo(GPS);
     SerialDevice_SendData(arreglo,largo);
 }
 
-void enviaDebug(char *arreglo,unsigned char largo) {
+void enviaDebug(uint8_t *arreglo,uint8_t largo) {
     compruebaModo(DEBUG1);
     SerialDevice_SendData(arreglo,largo);
 }
